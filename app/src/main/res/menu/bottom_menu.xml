@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/wintersun"
+        android:icon="@drawable/ic_baseline_looks_one_24"
+        android:title="@string/wintersun"/>
+    <item
+        android:id="@+id/insomnium"
+        android:icon="@drawable/ic_baseline_looks_two_24"
+        android:title="@string/insomnium"/>
+    <item
+        android:id="@+id/belakor"
+        android:icon="@drawable/ic_baseline_looks_3_24"
+        android:title="@string/be_lakor"/>
+</menu>

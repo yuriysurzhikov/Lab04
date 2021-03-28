@@ -17,4 +17,8 @@
     <string name="error_activity_no_found">Can\'t perform action! Not found relative app.</string>
     <string name="error_something_went_wrong">Error! Something went wrong…</string>
     <string name="item_was_removed">Item was removed</string>
+    <string name="wintersun">Wintersun</string>
+    <string name="insomnium">Insomnium</string>
+    <string name="be_lakor">Be\'lakor</string>
+    <string name="error_failed_load_image">Image not loaded! There was an some error…</string>
 </resources>
