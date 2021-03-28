@@ -7,22 +7,26 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputLayout
 import com.yuriysurzhikov.lab4.BuildConfig
 import com.yuriysurzhikov.lab4.R
+import com.yuriysurzhikov.lab4.model.ContactsViewModel
 import com.yuriysurzhikov.lab4.model.DataContact
 import com.yuriysurzhikov.lab4.ui.text.LengthWatcher
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class AddContactActivity : AppCompatActivity() {
+class AddContactFragment : Fragment() {
 
     private lateinit var nameInput: TextInputLayout
     private lateinit var emailInput: TextInputLayout
@@ -33,26 +37,36 @@ class AddContactActivity : AppCompatActivity() {
     private lateinit var cancelAction: Button
     private lateinit var pickPhotoAction: Button
 
+    private lateinit var viewModel: ContactsViewModel
+
     private var imageUri: Uri? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_contact)
-        nameInput = findViewById(R.id.name_til)
-        nameInput.editText?.addTextChangedListener(LengthWatcher(nameInput))
-        emailInput = findViewById(R.id.email_til)
-        emailInput.editText?.addTextChangedListener(LengthWatcher(emailInput))
-        phoneInput = findViewById(R.id.phone_til)
-        phoneInput.editText?.addTextChangedListener(LengthWatcher(phoneInput))
-        photoPicker = findViewById(R.id.circle_image)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_add_contact, container, false)
+    }
 
-        submitAction = findViewById(R.id.button_confirm)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(activity!!).get(ContactsViewModel::class.java)
+        nameInput = view.findViewById(R.id.name_til)
+        nameInput.editText?.addTextChangedListener(LengthWatcher(nameInput))
+        emailInput = view.findViewById(R.id.email_til)
+        emailInput.editText?.addTextChangedListener(LengthWatcher(emailInput))
+        phoneInput = view.findViewById(R.id.phone_til)
+        phoneInput.editText?.addTextChangedListener(LengthWatcher(phoneInput))
+        photoPicker = view.findViewById(R.id.circle_image)
+
+        submitAction = view.findViewById(R.id.button_confirm)
         submitAction.setOnClickListener(submitClickListener)
 
-        cancelAction = findViewById(R.id.button_cancel)
+        cancelAction = view.findViewById(R.id.button_cancel)
         cancelAction.setOnClickListener(cancelClickListener)
 
-        pickPhotoAction = findViewById(R.id.button_take_photo)
+        pickPhotoAction = view.findViewById(R.id.button_take_photo)
         pickPhotoAction.setOnClickListener(pickPhotoClickListener)
         photoPicker.setOnClickListener(pickPhotoClickListener)
     }
@@ -77,7 +91,7 @@ class AddContactActivity : AppCompatActivity() {
                     imageBitmap!!.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
                     imageUri = FileProvider
                         .getUriForFile(
-                            this,
+                            context!!,
                             "${BuildConfig.APPLICATION_ID}.fileprovider",
                             outputFile
                         )
@@ -89,7 +103,11 @@ class AddContactActivity : AppCompatActivity() {
                 }
             }
             Activity.RESULT_CANCELED -> {
-                Toast.makeText(this, getString(R.string.warning_action_canceled), Toast.LENGTH_LONG)
+                Toast.makeText(
+                    context,
+                    getString(R.string.warning_action_canceled),
+                    Toast.LENGTH_LONG
+                )
                     .show()
             }
         }
@@ -117,17 +135,14 @@ class AddContactActivity : AppCompatActivity() {
             val name = nameInput.editText?.text.toString()
             val email = emailInput.editText?.text.toString()
             val phone = phoneInput.editText?.text.toString()
-            val resultIntent = Intent().apply {
-                putExtra(CONTACT_ENTITY, DataContact(name, email, phone, imageUri))
-            }
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
+            val newItem = DataContact(name, email, phone, imageUri)
+            viewModel.insertContact(newItem)
+            activity?.supportFragmentManager?.popBackStack()
         }
     }
 
     private val cancelClickListener = View.OnClickListener {
-        setResult(Activity.RESULT_CANCELED)
-        finish()
+        activity?.supportFragmentManager?.popBackStack()
     }
 
     private val pickPhotoClickListener = View.OnClickListener {
@@ -136,7 +151,11 @@ class AddContactActivity : AppCompatActivity() {
             startActivityForResult(intent, CAPTURE_IMAGE_CODE)
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
-            Toast.makeText(this, getString(R.string.error_activity_no_found), Toast.LENGTH_LONG)
+            Toast.makeText(
+                context!!,
+                resources.getString(R.string.error_activity_no_found),
+                Toast.LENGTH_LONG
+            )
                 .show()
         }
     }
@@ -144,9 +163,8 @@ class AddContactActivity : AppCompatActivity() {
     companion object {
         const val CONTACT_ENTITY = "AddContactActivity.ContactEntity"
         private const val CAPTURE_IMAGE_CODE = 100
-        private const val OUT_NAME_INPUT = "name_input"
-        private const val OUT_PHONE_INPUT = "phone_input"
-        private const val OUT_EMAIL_INPUT = "email_input"
-        private const val OUT_IMAGE_URI = "image_uri"
+
+        @JvmStatic
+        fun getInstance() = AddContactFragment()
     }
 }

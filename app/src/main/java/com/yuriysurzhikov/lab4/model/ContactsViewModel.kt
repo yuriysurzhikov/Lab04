@@ -1,4 +1,4 @@
-package com.yuriysurzhikov.lab4.ui.main
+package com.yuriysurzhikov.lab4.model
 
 import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.LifecycleOwner
@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainActivityViewModel : ViewModel() {
+class ContactsViewModel : ViewModel() {
 
     private val mContactsList = mutableListOf<DataContact>()
     private val mContactsObservable = MutableLiveData<List<DataContact>>()
