@@ -1,2 +1,2 @@
 # Lab04
-## This is implementation of the first task.
+## This is implementation of the second task.
